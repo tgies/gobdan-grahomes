@@ -120,5 +120,29 @@ def decode():
 
     return jsonify({'decoded': decoded_message})
 
+@app.route('/api/riddle', methods=['POST'])
+def generate_riddle():
+    logging.debug('Generate riddle endpoint called')
+    temperature = float(request.json.get('temperature', 0.7))
+    top_p = float(request.json.get('top_p', 0.9))
+    selected_model = 'gpt-4o'
+
+    try:
+        # Use OpenAI to generate a cryptic ancient riddle
+        response = openai.chat.completions.create(
+            model=selected_model,
+            messages=[
+                {"role": "system", "content": "Write an evil wizard's brief 4-line cryptic ancient riddle about the Cipher of Grackles and the Cipher of Bards and a Fool's Ravings. One line should include the phrase 'being gay' or 'doing gay stuff' or 'going on my sites'."}
+            ],
+            temperature=0.8,
+            top_p=1.0
+        )
+        riddle = response.choices[0].message.content.strip()
+        logging.debug(f'Generated riddle: {riddle}')
+        return jsonify({'riddle': riddle})
+    except Exception as e:
+        logging.error(f"Error generating riddle: {e}")
+        return jsonify({'error': 'Unable to generate riddle'}), 500
+
 if __name__ == '__main__':
     app.run()

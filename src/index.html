@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,11 +12,15 @@
       font-family: 'Times New Roman', Times, serif;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
       margin: 0;
+      overflow-x: hidden;
+      padding-top: 20px;
+      box-sizing: border-box;
     }
+
     #container {
       display: flex;
       flex-direction: row;
@@ -23,7 +28,9 @@
       width: 80%;
       max-width: 1200px;
       box-shadow: 0px 0px 20px #5c5240;
+      position: relative;
     }
+
     .column {
       flex: 1;
       display: flex;
@@ -33,7 +40,9 @@
       padding: 20px;
       border: 1px solid #5c5240;
       min-width: 300px;
+      box-sizing: border-box;
     }
+
     textarea {
       width: 80%;
       height: 300px;
@@ -45,6 +54,7 @@
       padding: 10px;
       outline: none;
     }
+
     button {
       margin-top: 20px;
       padding: 10px 20px;
@@ -54,28 +64,35 @@
       cursor: pointer;
       font-size: 1em;
     }
+
     button:hover {
       background-color: #3e372e;
     }
+
     button:not(.special)::after {
       content: '➡️';
     }
+
     #hiddenEncodedMessage {
       display: none;
     }
+
     .slider-container {
       margin-top: 20px;
       width: 50%;
       max-width: 600px;
     }
+
     .slider-label {
       display: flex;
       justify-content: space-between;
       width: 100%;
     }
+
     input[type="range"] {
       width: 100%;
     }
+
     #toast {
       visibility: hidden;
       min-width: 250px;
@@ -90,18 +107,36 @@
       bottom: 30px;
       transform: translateX(-50%);
     }
+
     #toast.show {
       visibility: visible;
       animation: fadein 0.5s, fadeout 0.5s 2.5s;
     }
+
     @keyframes fadein {
-      from {bottom: 0; opacity: 0;}
-      to {bottom: 30px; opacity: 1;}
+      from {
+        bottom: 0;
+        opacity: 0;
+      }
+
+      to {
+        bottom: 30px;
+        opacity: 1;
+      }
     }
+
     @keyframes fadeout {
-      from {bottom: 30px; opacity: 1;}
-      to {bottom: 0; opacity: 0;}
+      from {
+        bottom: 30px;
+        opacity: 1;
+      }
+
+      to {
+        bottom: 0;
+        opacity: 0;
+      }
     }
+
     #boite-diabolique {
       margin-top: 20px;
       background-color: #2b2925;
@@ -115,29 +150,39 @@
       justify-content: space-between;
       align-items: center;
     }
+
     #boite-diabolique::after {
       content: '⬇️';
       font-size: 1.5em;
     }
+
     #controls {
       max-height: 0;
       overflow: hidden;
       transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out;
+      padding: 0;
+      width: 80%;
+      max-width: 600px;
+      margin: 0 auto;
     }
+
     #controls.show {
       max-height: 1000px;
       padding-top: 10px;
     }
+
     .fools-ravings-container {
       margin-top: 20px;
       width: 80%;
       max-width: 600px;
     }
+
     .fools-ravings-container label {
       display: block;
       margin-bottom: 5px;
       font-size: 1.2em;
     }
+
     .fools-ravings-container textarea {
       width: 100%;
       height: 100px;
@@ -149,96 +194,54 @@
       padding: 10px;
       outline: none;
     }
+
+    #spinner {
+      position: absolute;
+      inset: 0;
+      margin: auto;
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid #5c5240;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+      display: none;
+      z-index: 10;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
     @media (max-width: 900px) {
       #container {
         flex-direction: column;
         height: auto;
+        align-items: stretch;
       }
+
+      .column {
+        width: 100%;
+      }
+
       button:not(.special)::after {
         content: '⬇️';
       }
+
+      body {
+        height: auto;
+      }
     }
   </style>
-  <script>
-    async function populateModelsDropdown() {
-      try {
-        const response = await fetch('/api/models');
-        const data = await response.json();
-        const modelsDropdown = document.getElementById('modelsDropdown');
-        data.models.forEach(model => {
-          const option = document.createElement('option');
-          option.value = model;
-          option.textContent = model;
-          modelsDropdown.appendChild(option);
-        });
-        // Set default value to gpt-4o
-        modelsDropdown.value = 'gpt-4o';
-      } catch (error) {
-        console.error('Error fetching models:', error);
-      }
-    }
-
-    async function submitMessage() {
-      const message = document.getElementById('inputMessage').value;
-      const temperature = document.getElementById('temperature').value;
-      const topP = document.getElementById('topP').value;
-      const selectedModel = document.getElementById('modelsDropdown').value;
-      const response = await fetch('/api/encode', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ message, temperature, top_p: topP, model: selectedModel })
-      });
-      const result = await response.json();
-      document.getElementById('localDecodedMessage').value = result.decoded;
-      document.getElementById('hiddenEncodedMessage').value = result.encoded;
-      document.getElementById('foolsRavings').value = result.encoded;
-    }
-
-    async function decodeMessage() {
-      const encodedMessage = document.getElementById('hiddenEncodedMessage').value;
-      const temperature = document.getElementById('temperature').value;
-      const topP = document.getElementById('topP').value;
-      const selectedModel = document.getElementById('modelsDropdown').value;
-      const response = await fetch('/api/decode', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ encodedMessage, temperature, top_p: topP, model: selectedModel })
-      });
-      const result = await response.json();
-      document.getElementById('gptDecodedMessage').value = result.decoded;
-    }
-
-    function doSomethingWeird() {
-      showToast('✨ You Found A Secret ✨');
-      document.body.style.backgroundColor = '#' + Math.floor(Math.random()*16777215).toString(16);
-    }
-
-    function showToast(message) {
-      const toast = document.getElementById('toast');
-      toast.textContent = message;
-      toast.className = 'show';
-      setTimeout(() => { toast.className = toast.className.replace('show', ''); }, 3000);
-    }
-
-    function toggleControls() {
-      const controls = document.getElementById('controls');
-      const boite = document.getElementById('boite-diabolique');
-      if (controls.classList.contains('show')) {
-        controls.classList.remove('show');
-        boite.querySelector('::after').textContent = '⬇️';
-      } else {
-        controls.classList.add('show');
-        boite.querySelector('::after').textContent = '⬆️';
-      }
-    }
-
-    document.addEventListener('DOMContentLoaded', populateModelsDropdown);
-  </script>
+  <script src="/static/js/app.js"></script>
 </head>
+
 <body>
   <div id="container">
     <div class="column">
@@ -253,24 +256,27 @@
       <textarea id="gptDecodedMessage" placeholder="Cipher of the Bard" readonly></textarea><br>
       <button class="special" onclick="doSomethingWeird()">✨</button>
     </div>
+    <div id="spinner" class="spinner"></div>
   </div>
   <div id="boite-diabolique" onclick="toggleControls()">
     Boîte Diabolique
   </div>
-  <div id="controls">
+  <div id="controls" class="controls">
     <div class="slider-container">
       <div class="slider-label">
         <label for="temperature">Temperature</label>
         <span id="temperatureValue">0.7</span>
       </div>
-      <input type="range" id="temperature" name="temperature" min="0" max="1" step="0.1" value="0.7" oninput="document.getElementById('temperatureValue').textContent = this.value">
+      <input type="range" id="temperature" name="temperature" min="0" max="2" step="0.1" value="0.7"
+        oninput="document.getElementById('temperatureValue').textContent = this.value">
     </div>
     <div class="slider-container">
       <div class="slider-label">
         <label for="topP">Top-p</label>
         <span id="topPValue">0.9</span>
       </div>
-      <input type="range" id="topP" name="topP" min="0" max="1" step="0.1" value="0.9" oninput="document.getElementById('topPValue').textContent = this.value">
+      <input type="range" id="topP" name="topP" min="0" max="1" step="0.1" value="0.9"
+        oninput="document.getElementById('topPValue').textContent = this.value">
     </div>
     <div class="slider-container">
       <label for="modelsDropdown">Select Model</label><br>
@@ -284,4 +290,5 @@
   <div id="toast"></div>
   <input type="hidden" id="hiddenEncodedMessage">
 </body>
+
 </html>
