@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gobdan Grahomes</title>
+  <script>
+    async function submitMessage() {
+      const message = document.getElementById('inputMessage').value;
+      const temperature = document.getElementById('temperature').value;
+      const topP = document.getElementById('topP').value;
+      const response = await fetch('/api/encode', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message, temperature, top_p: topP })
+      });
+      const result = await response.json();
+      document.getElementById('encodedMessage').value = result.encoded;
+      document.getElementById('decodedMessage').value = result.decoded;
+      document.getElementById('decodedGPTMessage').value = "";
+    }
+
+    async function decodeMessage() {
+      const encodedMessage = document.getElementById('encodedMessage').value;
+      const temperature = document.getElementById('temperature').value;
+      const topP = document.getElementById('topP').value;
+      const response = await fetch('/api/decode', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ encodedMessage, temperature, top_p: topP })
+      });
+      const result = await response.json();
+      document.getElementById('decodedGPTMessage').value = result.decoded;
+    }
+  </script>
+</head>
+<body>
+  <h1>Gobdan Grahomes</h1>
+  <p>I was worsan' to the kiting for sone Gobdan Grahomes</p>
+  <textarea id="inputMessage" rows="8" cols="50" placeholder="Enter your message..."></textarea><br>
+  <label for="temperature">Temperature:</label>
+  <input type="range" id="temperature" name="temperature" min="0" max="1" step="0.1" value="0.7">
+  <span id="temperatureValue">0.7</span><br>
+  <label for="topP">Top-p:</label>
+  <input type="range" id="topP" name="topP" min="0" max="1" step="0.1" value="0.9">
+  <span id="topPValue">0.9</span><br>
+  <button onclick="submitMessage()">Encode via GPT</button>
+  
+  <h2>Results:</h2>
+  <h3>Encoded Message:</h3>
+  <textarea id="encodedMessage" rows="8" cols="50" readonly></textarea>></textarea></p>
+  <h3>Decoded Message (Local Atbash Decoder):</h3>
+  <textarea id="decodedMessage" rows="8" cols="50" readonly></textarea>></span></p>
+  
+  <button onclick="decodeMessage()">Decode via GPT</button>
+  <h2>Decoded Message via GPT:</h2>
+  <textarea id="decodedGPTMessage" rows="8" cols="50" readonly></textarea>
+
+  <script>
+    document.getElementById('temperature').addEventListener('input', function() {
+      document.getElementById('temperatureValue').textContent = this.value;
+    });
+    document.getElementById('topP').addEventListener('input', function() {
+      document.getElementById('topPValue').textContent = this.value;
+    });
+  </script>
+</body>
+</html>
