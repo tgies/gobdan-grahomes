@@ -102,6 +102,53 @@
       from {bottom: 30px; opacity: 1;}
       to {bottom: 0; opacity: 0;}
     }
+    #boite-diabolique {
+      margin-top: 20px;
+      background-color: #2b2925;
+      color: #e0c097;
+      border: 1px solid #5c5240;
+      padding: 10px;
+      width: 80%;
+      max-width: 600px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #boite-diabolique::after {
+      content: '⬇️';
+      font-size: 1.5em;
+    }
+    #controls {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out;
+    }
+    #controls.show {
+      max-height: 1000px;
+      padding-top: 10px;
+    }
+    .fools-ravings-container {
+      margin-top: 20px;
+      width: 80%;
+      max-width: 600px;
+    }
+    .fools-ravings-container label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 1.2em;
+    }
+    .fools-ravings-container textarea {
+      width: 100%;
+      height: 100px;
+      background-color: #332f2a;
+      color: #e0c097;
+      border: none;
+      resize: none;
+      font-size: 1em;
+      padding: 10px;
+      outline: none;
+    }
     @media (max-width: 900px) {
       #container {
         flex-direction: column;
@@ -113,32 +160,53 @@
     }
   </style>
   <script>
+    async function populateModelsDropdown() {
+      try {
+        const response = await fetch('/api/models');
+        const data = await response.json();
+        const modelsDropdown = document.getElementById('modelsDropdown');
+        data.models.forEach(model => {
+          const option = document.createElement('option');
+          option.value = model;
+          option.textContent = model;
+          modelsDropdown.appendChild(option);
+        });
+        // Set default value to gpt-4o
+        modelsDropdown.value = 'gpt-4o';
+      } catch (error) {
+        console.error('Error fetching models:', error);
+      }
+    }
+
     async function submitMessage() {
       const message = document.getElementById('inputMessage').value;
       const temperature = document.getElementById('temperature').value;
       const topP = document.getElementById('topP').value;
+      const selectedModel = document.getElementById('modelsDropdown').value;
       const response = await fetch('/api/encode', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ message, temperature, top_p: topP })
+        body: JSON.stringify({ message, temperature, top_p: topP, model: selectedModel })
       });
       const result = await response.json();
       document.getElementById('localDecodedMessage').value = result.decoded;
       document.getElementById('hiddenEncodedMessage').value = result.encoded;
+      document.getElementById('foolsRavings').value = result.encoded;
     }
 
     async function decodeMessage() {
       const encodedMessage = document.getElementById('hiddenEncodedMessage').value;
       const temperature = document.getElementById('temperature').value;
       const topP = document.getElementById('topP').value;
+      const selectedModel = document.getElementById('modelsDropdown').value;
       const response = await fetch('/api/decode', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ encodedMessage, temperature, top_p: topP })
+        body: JSON.stringify({ encodedMessage, temperature, top_p: topP, model: selectedModel })
       });
       const result = await response.json();
       document.getElementById('gptDecodedMessage').value = result.decoded;
@@ -155,6 +223,20 @@
       toast.className = 'show';
       setTimeout(() => { toast.className = toast.className.replace('show', ''); }, 3000);
     }
+
+    function toggleControls() {
+      const controls = document.getElementById('controls');
+      const boite = document.getElementById('boite-diabolique');
+      if (controls.classList.contains('show')) {
+        controls.classList.remove('show');
+        boite.querySelector('::after').textContent = '⬇️';
+      } else {
+        controls.classList.add('show');
+        boite.querySelector('::after').textContent = '⬆️';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', populateModelsDropdown);
   </script>
 </head>
 <body>
@@ -172,19 +254,32 @@
       <button class="special" onclick="doSomethingWeird()">✨</button>
     </div>
   </div>
-  <div class="slider-container">
-    <div class="slider-label">
-      <label for="temperature">Temperature</label>
-      <span id="temperatureValue">0.7</span>
-    </div>
-    <input type="range" id="temperature" name="temperature" min="0" max="1" step="0.1" value="0.7" oninput="document.getElementById('temperatureValue').textContent = this.value">
+  <div id="boite-diabolique" onclick="toggleControls()">
+    Boîte Diabolique
   </div>
-  <div class="slider-container">
-    <div class="slider-label">
-      <label for="topP">Top-p</label>
-      <span id="topPValue">0.9</span>
+  <div id="controls">
+    <div class="slider-container">
+      <div class="slider-label">
+        <label for="temperature">Temperature</label>
+        <span id="temperatureValue">0.7</span>
+      </div>
+      <input type="range" id="temperature" name="temperature" min="0" max="1" step="0.1" value="0.7" oninput="document.getElementById('temperatureValue').textContent = this.value">
     </div>
-    <input type="range" id="topP" name="topP" min="0" max="1" step="0.1" value="0.9" oninput="document.getElementById('topPValue').textContent = this.value">
+    <div class="slider-container">
+      <div class="slider-label">
+        <label for="topP">Top-p</label>
+        <span id="topPValue">0.9</span>
+      </div>
+      <input type="range" id="topP" name="topP" min="0" max="1" step="0.1" value="0.9" oninput="document.getElementById('topPValue').textContent = this.value">
+    </div>
+    <div class="slider-container">
+      <label for="modelsDropdown">Select Model</label><br>
+      <select id="modelsDropdown"></select>
+    </div>
+    <div class="fools-ravings-container">
+      <label for="foolsRavings">a Fool's Ravings:</label>
+      <textarea id="foolsRavings" readonly></textarea>
+    </div>
   </div>
   <div id="toast"></div>
   <input type="hidden" id="hiddenEncodedMessage">

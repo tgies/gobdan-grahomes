@@ -1,3 +1,5 @@
 .env
 .venv
 secrets.nix
+__pycache__/
+*.py[cod]
