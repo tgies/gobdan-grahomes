@@ -195,6 +195,14 @@
       outline: none;
     }
 
+    .copyright-notice {
+      margin-top: 10px;
+      margin-bottom: 10px;
+      font-size: 0.8em;
+      color: #a69c8c;
+      text-align: center;
+    }
+
     #spinner {
       position: absolute;
       inset: 0;
@@ -207,6 +215,16 @@
       animation: spin 1s linear infinite;
       display: none;
       z-index: 10;
+    }
+
+    a {
+      color: #e0c097;
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: #f5d3a1;
+      text-decoration: underline;
     }
 
     @keyframes spin {
@@ -286,6 +304,7 @@
       <label for="foolsRavings">a Fool's Ravings:</label>
       <textarea id="foolsRavings" readonly></textarea>
     </div>
+    <div class="copyright-notice">a <a href="https://x.com/me_irl/">the government man</a> joint. <em>Don't Ask What The Project Is</em> &copy; 2024</div>
   </div>
   <div id="toast"></div>
   <input type="hidden" id="hiddenEncodedMessage">
