@@ -163,7 +163,7 @@ def generate_riddle():
         response = openai.chat.completions.create(
             model=selected_model,
             messages=[
-                {"role": "system", "content": "Write a cryptic ancient riddle."}
+                {"role": "system", "content": "Write an evil wizard's brief 4-line cryptic ancient riddle about the Cipher of Grackles and the Cipher of Bards and a Fool's Ravings. One line should include the phrase 'being gay' or 'doing gay stuff' or 'going on my sites'."}
             ],
             temperature=temperature,
             top_p=top_p
