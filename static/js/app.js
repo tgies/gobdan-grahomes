@@ -98,7 +98,7 @@ async function decodeMessage() {
 
 async function doSomethingWeird() {
   showToast('✨ You Found A Secret ✨');
-  document.body.style.backgroundColor = '#' + Math.floor(Math.random()*16777215).toString(16);
+  // document.body.style.backgroundColor = '#' + Math.floor(Math.random()*16777215).toString(16);
 
   // Generate a cryptic ancient riddle and display it in the Fool's Ravings area
   const temperature = document.getElementById('temperature').value;
