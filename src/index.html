@@ -203,6 +203,26 @@
       text-align: center;
     }
 
+    a {
+      color: #e0c097;
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: #f5d3a1;
+      text-decoration: underline;
+    }
+
+
+    .cipher-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      max-width: 600px;
+      margin: 20px auto;
+    }
+
     #spinner {
       position: absolute;
       inset: 0;
@@ -215,16 +235,6 @@
       animation: spin 1s linear infinite;
       display: none;
       z-index: 10;
-    }
-
-    a {
-      color: #e0c097;
-      text-decoration: none;
-    }
-
-    a:hover {
-      color: #f5d3a1;
-      text-decoration: underline;
     }
 
     @keyframes spin {
@@ -261,6 +271,13 @@
 </head>
 
 <body>
+  <div class="cipher-container">
+    <label for="cipherDropdown">Select Cipher Pair</label><br>
+    <select id="cipherDropdown" onchange="changeCipherPair()">
+      <option value="atbash" selected>Grackle/Bard</option>
+      <option value="rot13">Drunkard/Soothsayer</option>
+    </select>
+  </div>
   <div id="container">
     <div class="column">
       <textarea id="inputMessage" placeholder="Layman's speak"></textarea><br>
@@ -283,17 +300,17 @@
     <div class="slider-container">
       <div class="slider-label">
         <label for="temperature">Temperature</label>
-        <span id="temperatureValue">0.7</span>
+        <span id="temperatureValue">0.8</span>
       </div>
-      <input type="range" id="temperature" name="temperature" min="0" max="2" step="0.1" value="0.7"
+      <input type="range" id="temperature" name="temperature" min="0" max="2" step="0.1" value="0.8"
         oninput="document.getElementById('temperatureValue').textContent = this.value">
     </div>
     <div class="slider-container">
       <div class="slider-label">
         <label for="topP">Top-p</label>
-        <span id="topPValue">0.9</span>
+        <span id="topPValue">1.0</span>
       </div>
-      <input type="range" id="topP" name="topP" min="0" max="1" step="0.1" value="0.9"
+      <input type="range" id="topP" name="topP" min="0" max="1" step="0.1" value="1.0"
         oninput="document.getElementById('topPValue').textContent = this.value">
     </div>
     <div class="slider-container">
@@ -304,8 +321,8 @@
       <label for="foolsRavings">a Fool's Ravings:</label>
       <textarea id="foolsRavings" readonly></textarea>
     </div>
-    <div class="copyright-notice">a <a href="https://x.com/me_irl/">the government man</a> joint. <em>Don't Ask What The Project Is</em> &copy; 2024</div>
   </div>
+  <div class="copyright-notice">a <a href="https://x.com/me_irl/">the government man</a> joint. <em>Don't Ask What The Project Is</em> &copy; 2024</div>
   <div id="toast"></div>
   <input type="hidden" id="hiddenEncodedMessage">
 </body>
